@@ -55,6 +55,8 @@ namespace Lean.Touch
         /// <summary>Used to store position snapshots, enable RecordFingers in LeanTouch to use this.</summary>
         public List<LeanSnapshot> Snapshots = new List<LeanSnapshot>(1000);
 
+        public GameObject gameObject;
+
         /// <summary>This will return true if this finger is currently touching the screen.</summary>
         public bool IsActive
         {
