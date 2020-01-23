@@ -9,6 +9,8 @@ namespace UnityPureMVC.Modules.Touch.View.Components
 
         void RegisterTap(GameObject gameObject, OnTouchDelegate callback);
 
+        void UnRegisterTap(GameObject gameObject, OnTouchDelegate callback);
+
         void RegisterTouchDown(GameObject gameObject, OnTouchDelegate callback);
 
         void RegisterTouchUp(GameObject gameObject, OnTouchDelegate callback);
