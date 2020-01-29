@@ -178,7 +178,8 @@ namespace UnityPureMVC.Modules.Touch.View.Components
             {
                 TouchCallbackVO touchCallbackVO = new TouchCallbackVO
                 {
-                    swipeDelta = LeanGesture.GetScreenDelta(Use.GetFingers())
+                    swipeDelta = LeanGesture.GetScreenDelta(Use.GetFingers()),
+                    screenPosition = LeanGesture.GetStartScreenCenter(Use.GetFingers())
                 };
                 swipeDeltaCallbacks.ForEach(i => i?.Invoke(touchCallbackVO));
             }
