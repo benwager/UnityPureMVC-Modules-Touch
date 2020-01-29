@@ -103,6 +103,7 @@ namespace Lean.Touch
 
             if (onFinger != null)
             {
+                finger.gameObject = gameObject;
                 onFinger.Invoke(finger);
             }
 

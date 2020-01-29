@@ -19,6 +19,7 @@ namespace UnityPureMVC.Modules.Touch.Controller.Commands
 
             // Register commands
             Facade.RegisterCommand(TouchNote.REQUEST_REGISTER_TAP, typeof(RequestRegisterTapCommand));
+            Facade.RegisterCommand(TouchNote.REQUEST_UNREGISTER_TAP, typeof(RequestUnRegisterTapCommand));
             Facade.RegisterCommand(TouchNote.REQUEST_SET_TOUCH_ENGINE, typeof(RequestSetTouchEngineCommand));
             Facade.RegisterCommand(TouchNote.REQUEST_REGISTER_SWIPE_DELTA, typeof(RequestRegisterSwipeDeltaCommand));
             Facade.RegisterCommand(TouchNote.REQUEST_REGISTER_TOUCH_DOWN, typeof(RequestRegisterTouchDownCommand));

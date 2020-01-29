@@ -16,12 +16,16 @@ namespace UnityPureMVC.Modules.Touch.View.Components
         LeanFingerTap leanFingerTap;
         LeanFingerDown leanFingerDown;
         LeanFingerUp leanFingerUp;
-
         List<OnTouchDelegate> swipeDeltaCallbacks;
+
+        Dictionary<LeanFingerTap, List<OnTouchDelegate>> registeredTapCallbacks;
+
 
         public void Initialize()
         {
             swipeDeltaCallbacks = new List<OnTouchDelegate>();
+
+            registeredTapCallbacks = new Dictionary<LeanFingerTap, List<OnTouchDelegate>>();
 
             leanTouch = gameObject.AddComponent<LeanTouch>();
             leanSelect = gameObject.AddComponent<LeanSelect>();
@@ -52,28 +56,73 @@ namespace UnityPureMVC.Modules.Touch.View.Components
                 return;
             }
 
-            LeanFingerTap tap = collider.gameObject.AddComponent<LeanFingerTap>();
-            LeanSelectable selectable = tap.gameObject.AddComponent<LeanSelectable>();
+
+            LeanFingerTap tap = collider.gameObject.GetComponent<LeanFingerTap>();
+
+            if(tap == null)
+            {
+                tap = collider.gameObject.AddComponent<LeanFingerTap>();
+            }
+            
+            LeanSelectable selectable = tap.gameObject.GetComponent<LeanSelectable>();
+            if(selectable == null)
+            {
+                selectable = tap.gameObject.AddComponent<LeanSelectable>();
+            }
+
+            // Check if it exists in the dictionary
+            if(registeredTapCallbacks.ContainsKey(tap))
+            {
+                // Check if this particular callback is already registered
+                if(registeredTapCallbacks[tap].Contains(callback))
+                {
+                    return;
+                }
+            }
+            else
+            {
+                registeredTapCallbacks.Add(tap, new List<OnTouchDelegate>());
+            }
+
+            registeredTapCallbacks[tap].Add(callback);
+
             selectable.DeselectOnUp = true;
             tap.RequiredSelectable = selectable;
-            tap.OnFinger.AddListener((LeanFinger leanFinger) =>
-            {
-                callback?.Invoke(new TouchCallbackVO
-                {
-                    gameObject = gameObject
-                });
-            });
+            tap.OnFinger.AddListener(OnTap);
         }
 
         private void RegisterTap(OnTouchDelegate callback)
         {
-            leanFingerTap.OnFinger.AddListener((LeanFinger leanFinger) =>
+            RegisterTap(gameObject, callback);
+        }
+
+        public void UnRegisterTap(GameObject gameObject, OnTouchDelegate callback)
+        {
+            LeanFingerTap tap = gameObject.GetComponent<LeanFingerTap>();
+            if (tap == null) return;
+
+            if(registeredTapCallbacks.ContainsKey(tap))
             {
-                callback?.Invoke(new TouchCallbackVO
+                if(registeredTapCallbacks[tap].Contains(callback))
                 {
+                    registeredTapCallbacks[tap].Remove(callback);
+                }
+            }
+        }
+
+        private void OnTap(LeanFinger leanFinger)
+        {
+            GameObject go = leanFinger.gameObject;
+            LeanFingerTap tap = go.GetComponent<LeanFingerTap>();
+            if (tap == null) return;
+            if(registeredTapCallbacks.ContainsKey(tap))
+            {
+                registeredTapCallbacks[tap].ForEach(i => i.Invoke(new TouchCallbackVO
+                {
+                    gameObject = go,
                     screenPosition = leanFinger.ScreenPosition
-                });
-            });
+                }));
+            }
         }
 
         public void RegisterTouchDown(GameObject gameObject, OnTouchDelegate callback)
