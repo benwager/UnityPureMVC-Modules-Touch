@@ -1,323 +1,404 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using System.Collections.Generic;
 
 namespace Lean.Touch
 {
-    /// <summary>This component stores a list of points that form a path.</summary>
-    [HelpURL(LeanTouch.HelpUrlPrefix + "LeanPath")]
-    [AddComponentMenu(LeanTouch.ComponentPathPrefix + "Path")]
-    public class LeanPath : MonoBehaviour
-    {
-        /// <summary>The points along the path.</summary>
-        [Tooltip("The points along the path.")]
-        public List<Vector3> Points;
+	/// <summary>This component stores a list of points that form a path.</summary>
+	[ExecuteInEditMode]
+	[HelpURL(LeanTouch.HelpUrlPrefix + "LeanPath")]
+	[AddComponentMenu(LeanTouch.ComponentPathPrefix + "Path")]
+	public class LeanPath : MonoBehaviour
+	{
+		/// <summary>The points along the path.</summary>
+		[Tooltip("The points along the path.")]
+		public List<Vector3> Points;
 
-        /// <summary>Do these points loop back to the start?</summary>
-        [Tooltip("Do these points loop back to the start?")]
-        public bool Loop;
+		/// <summary>Do these points loop back to the start?</summary>
+		[Tooltip("Do these points loop back to the start?")]
+		public bool Loop;
 
-        /// <summary>The coordinate system for the points.</summary>
-        [Tooltip("The coordinate system for the points.")]
-        public Space Space = Space.Self;
+		/// <summary>The coordinate system for the points.</summary>
+		[Tooltip("The coordinate system for the points.")]
+		public Space Space = Space.Self;
 
-        /// <summary>The amount of lines between each path point when read from LeanScreenDepth.</summary>
-        [Tooltip("The amount of lines between each path point when read from LeanScreenDepth.")]
-        public int Smoothing = 1;
+		/// <summary>The amount of lines between each path point when read from LeanScreenDepth.</summary>
+		[Tooltip("The amount of lines between each path point when read from LeanScreenDepth.")]
+		public int Smoothing = 1;
 
-        public static Vector3 LastWorldNormal = Vector3.forward;
+		/// <summary>This allows you to draw a visual of the path using a <b>LineRenderer</b>.</summary>
+		[Tooltip("This allows you to draw a visual of the path using a LineRenderer.")]
+		public LineRenderer Visual;
 
-        public int PointCount
-        {
-            get
-            {
-                if (Points != null)
-                {
-                    var count = Points.Count;
+		public static Vector3 LastWorldNormal = Vector3.forward;
 
-                    if (count >= 2)
-                    {
-                        if (Loop == true)
-                        {
-                            return count + 1;
-                        }
-                        else
-                        {
-                            return count;
-                        }
-                    }
-                }
+		public int PointCount
+		{
+			get
+			{
+				if (Points != null)
+				{
+					var count = Points.Count;
 
-                return 0;
-            }
-        }
+					if (count >= 2)
+					{
+						if (Loop == true)
+						{
+							return count + 1;
+						}
+						else
+						{
+							return count;
+						}
+					}
+				}
 
-        public int GetPointCount(int smoothing = 1)
-        {
-            if (Points != null)
-            {
-                var count = Points.Count;
+				return 0;
+			}
+		}
 
-                if (count >= 2 && smoothing >= 1)
-                {
-                    if (Loop == true)
-                    {
-                        return count * smoothing + 1;
-                    }
-                    else
-                    {
-                        return (count - 1) * smoothing + 1;
-                    }
-                }
-            }
+		public int GetPointCount(int smoothing = -1)
+		{
+			if (Points != null)
+			{
+				if (smoothing < 0)
+				{
+					smoothing = Smoothing;
+				}
 
-            return 0;
-        }
+				var count = Points.Count;
 
-        public Vector3 GetSmoothedPoint(float index)
-        {
-            if (Points == null)
-            {
-                throw new System.IndexOutOfRangeException();
-            }
+				if (count >= 2 && smoothing >= 1)
+				{
+					if (Loop == true)
+					{
+						return count * smoothing + 1;
+					}
+					else
+					{
+						return (count - 1) * smoothing + 1;
+					}
+				}
+			}
 
-            var count = Points.Count;
+			return 0;
+		}
 
-            if (count < 2)
-            {
-                throw new System.Exception();
-            }
+		public Vector3 GetSmoothedPoint(float index)
+		{
+			if (Points == null)
+			{
+				throw new System.IndexOutOfRangeException();
+			}
 
-            // Get int and fractional part of float index
-            var i = (int)index;
-            var t = Mathf.Abs(index - i);
+			var count = Points.Count;
 
-            // Get 4 control points
-            var a = GetPointRaw(i - 1, count);
-            var b = GetPointRaw(i, count);
-            var c = GetPointRaw(i + 1, count);
-            var d = GetPointRaw(i + 2, count);
+			if (count < 2)
+			{
+				throw new System.Exception();
+			}
 
-            // Interpolate and return
-            var p = default(Vector3);
+			// Get int and fractional part of float index
+			var i = (int)index;
+			var t = Mathf.Abs(index - i);
 
-            p.x = CubicInterpolate(a.x, b.x, c.x, d.x, t);
-            p.y = CubicInterpolate(a.y, b.y, c.y, d.y, t);
-            p.z = CubicInterpolate(a.z, b.z, c.z, d.z, t);
+			// Get 4 control points
+			var a = GetPointRaw(i - 1, count);
+			var b = GetPointRaw(i    , count);
+			var c = GetPointRaw(i + 1, count);
+			var d = GetPointRaw(i + 2, count);
 
-            return p;
-        }
+			// Interpolate and return
+			var p = default(Vector3);
 
-        public Vector3 GetPoint(int index, int smoothing = 1)
-        {
-            if (Points == null)
-            {
-                throw new System.IndexOutOfRangeException();
-            }
+			p.x = CubicInterpolate(a.x, b.x, c.x, d.x, t);
+			p.y = CubicInterpolate(a.y, b.y, c.y, d.y, t);
+			p.z = CubicInterpolate(a.z, b.z, c.z, d.z, t);
 
-            if (smoothing < 1)
-            {
-                throw new System.ArgumentOutOfRangeException();
-            }
+			return p;
+		}
 
-            var count = Points.Count;
+		public Vector3 GetPoint(int index, int smoothing = -1)
+		{
+			if (Points == null)
+			{
+				throw new System.IndexOutOfRangeException();
+			}
 
-            if (count < 2)
-            {
-                throw new System.Exception();
-            }
+			if (smoothing < 0)
+			{
+				smoothing = Smoothing;
+			}
 
-            if (smoothing > 0)
-            {
-                return GetSmoothedPoint(index / (float)smoothing);
-            }
+			if (smoothing < 1)
+			{
+				throw new System.ArgumentOutOfRangeException();
+			}
 
-            return GetPointRaw(index, count);
-        }
+			var count = Points.Count;
 
-        private Vector3 GetPointRaw(int index, int count)
-        {
-            if (Loop == true)
-            {
-                index = Mod(index, count);
-            }
-            else
-            {
-                index = Mathf.Clamp(index, 0, count - 1);
-            }
+			if (count < 2)
+			{
+				throw new System.Exception();
+			}
 
-            var point = Points[index];
+			if (smoothing > 0)
+			{
+				return GetSmoothedPoint(index / (float)smoothing);
+			}
 
-            if (Space == Space.Self)
-            {
-                point = transform.TransformPoint(point);
-            }
+			return GetPointRaw(index, count);
+		}
 
-            return point;
-        }
+		private Vector3 GetPointRaw(int index, int count)
+		{
+			if (Loop == true)
+			{
+				index = Mod(index, count);
+			}
+			else
+			{
+				index = Mathf.Clamp(index, 0, count - 1);
+			}
 
-        public void SetLine(Vector3 a, Vector3 b)
-        {
-            if (Points == null)
-            {
-                Points = new List<Vector3>();
-            }
-            else
-            {
-                Points.Clear();
-            }
+			var point = Points[index];
 
-            Points.Add(a);
-            Points.Add(b);
-        }
+			if (Space == Space.Self)
+			{
+				point = transform.TransformPoint(point);
+			}
 
-        public bool TryGetClosest(Vector3 position, ref Vector3 closestPoint, int smoothing = 1)
-        {
-            var count = GetPointCount(smoothing);
+			return point;
+		}
 
-            if (count >= 2)
-            {
-                var pointA = GetPoint(0, smoothing);
-                var closestDistance = float.PositiveInfinity;
+		public void SetLine(Vector3 a, Vector3 b)
+		{
+			if (Points == null)
+			{
+				Points = new List<Vector3>();
+			}
+			else
+			{
+				Points.Clear();
+			}
 
-                for (var i = 1; i < count; i++)
-                {
-                    var pointB = GetPoint(i, smoothing);
-                    var point = GetClosestPoint(position, pointA, pointB - pointA);
-                    var distance = Vector3.Distance(position, point);
+			Points.Add(a);
+			Points.Add(b);
+		}
 
-                    if (distance < closestDistance)
-                    {
-                        closestPoint = point;
-                        closestDistance = distance;
+		public bool TryGetClosest(Vector3 position, ref Vector3 closestPoint, ref int closestIndexA, ref int closestIndexB, int smoothing = -1)
+		{
+			var count = GetPointCount(smoothing);
 
-                        LastWorldNormal = Vector3.Normalize(point - pointB);
-                    }
+			if (count >= 2)
+			{
+				var indexA          = 0;
+				var pointA          = GetPoint(indexA, smoothing);
+				var closestDistance = float.PositiveInfinity;
 
-                    pointA = pointB;
-                }
+				for (var i = 1; i < count; i++)
+				{
+					var indexB   = i;
+					var pointB   = GetPoint(indexB, smoothing);
+					var point    = GetClosestPoint(position, pointA, pointB - pointA);
+					var distance = Vector3.Distance(position, point);
 
-                return true;
-            }
+					if (distance < closestDistance)
+					{
+						closestIndexA   = indexA;
+						closestIndexB   = i;
+						closestPoint    = point;
+						closestDistance = distance;
 
-            return false;
-        }
+						LastWorldNormal = Vector3.Normalize(point - pointB);
+					}
 
-        public bool TryGetClosest(Ray ray, ref Vector3 closestPoint, int smoothing = 1)
-        {
-            var count = GetPointCount(smoothing);
+					pointA = pointB;
+					indexA = indexB;
+				}
 
-            if (count >= 2)
-            {
-                var pointA = GetPoint(0, smoothing);
-                var closestDistance = float.PositiveInfinity;
+				return true;
+			}
 
-                for (var i = 1; i < count; i++)
-                {
-                    var pointB = GetPoint(i, smoothing);
-                    var point = GetClosestPoint(ray, pointA, pointB - pointA);
-                    var distance = GetClosestDistance(ray, point);
+			return false;
+		}
 
-                    if (distance < closestDistance)
-                    {
-                        closestPoint = point;
-                        closestDistance = distance;
+		public bool TryGetClosest(Vector3 position, ref Vector3 closestPoint, int smoothing = -1)
+		{
+			var closestIndexA = default(int);
+			var closestIndexB = default(int);
 
-                        LastWorldNormal = Vector3.Normalize(point - pointB);
-                    }
+			return TryGetClosest(position, ref closestPoint, ref closestIndexA, ref closestIndexB, smoothing);
+		}
 
-                    pointA = pointB;
-                }
+		public bool TryGetClosest(Ray ray, ref Vector3 closestPoint, ref int closestIndexA, ref int closestIndexB, int smoothing = -1)
+		{
+			var count = GetPointCount(smoothing);
 
-                return true;
-            }
+			if (count >= 2)
+			{
+				var indexA          = 0;
+				var pointA          = GetPoint(0, smoothing);
+				var closestDistance = float.PositiveInfinity;
 
-            return false;
-        }
+				for (var i = 1; i < count; i++)
+				{
+					var pointB   = GetPoint(i, smoothing);
+					var point    = GetClosestPoint(ray, pointA, pointB - pointA);
+					var distance = GetClosestDistance(ray, point);
 
-        private Vector3 GetClosestPoint(Vector3 position, Vector3 origin, Vector3 direction)
-        {
-            var denom = Vector3.Dot(direction, direction);
+					if (distance < closestDistance)
+					{
+						closestIndexA   = indexA;
+						closestIndexB   = i;
+						closestPoint    = point;
+						closestDistance = distance;
 
-            // If the line doesn't point anywhere, return origin
-            if (denom == 0.0f)
-            {
-                return origin;
-            }
+						LastWorldNormal = Vector3.Normalize(point - pointB);
+					}
 
-            var dist01 = Vector3.Dot(position - origin, direction) / denom;
+					pointA = pointB;
+					indexA = i;
+				}
 
-            return origin + direction * Mathf.Clamp01(dist01);
-        }
+				return true;
+			}
 
-        private Vector3 GetClosestPoint(Ray ray, Vector3 origin, Vector3 direction)
-        {
-            var crossA = Vector3.Cross(ray.direction, direction);
-            var denom = Vector3.Dot(crossA, crossA);
+			return false;
+		}
 
-            // If lines are parallel, we can return any point on line
-            if (denom == 0.0f)
-            {
-                return origin;
-            }
+		public bool TryGetClosest(Ray ray, ref Vector3 currentPoint, int smoothing = -1)
+		{
+			var closestIndexA = default(int);
+			var closestIndexB = default(int);
 
-            var crossB = Vector3.Cross(ray.direction, ray.origin - origin);
-            var dist01 = Vector3.Dot(crossA, crossB) / denom;
+			return TryGetClosest(ray, ref currentPoint, ref closestIndexA, ref closestIndexB, smoothing);
+		}
 
-            return origin + direction * Mathf.Clamp01(dist01);
-        }
+		public bool TryGetClosest(Ray ray, ref Vector3 currentPoint, int smoothing = -1, float maximumDelta = -1.0f)
+		{
+			if (maximumDelta > 0.0f)
+			{
+				var closestPoint = currentPoint;
 
-        private float GetClosestDistance(Ray ray, Vector3 point)
-        {
-            var denom = Vector3.Dot(ray.direction, ray.direction);
+				if (TryGetClosest(ray, ref closestPoint, smoothing) == true)
+				{
+					// Move toward closest point
+					var targetPoint = Vector3.MoveTowards(currentPoint, closestPoint, maximumDelta);
 
-            // If the ray doesn't point anywhere, return distance from origin to point
-            if (denom == 0.0f)
-            {
-                return Vector3.Distance(ray.origin, point);
-            }
+					return TryGetClosest(targetPoint, ref currentPoint, smoothing);
+				}
 
-            var dist01 = Vector3.Dot(point - ray.origin, ray.direction) / denom;
+				return false;
+			}
 
-            return Vector3.Distance(point, ray.GetPoint(dist01));
-        }
+			return TryGetClosest(ray, ref currentPoint, smoothing);
+		}
 
-        private int Mod(int a, int b)
-        {
-            a %= b; return a < 0 ? a + b : a;
-        }
+		private Vector3 GetClosestPoint(Vector3 position, Vector3 origin, Vector3 direction)
+		{
+			var denom = Vector3.Dot(direction, direction);
 
-        private float CubicInterpolate(float a, float b, float c, float d, float t)
-        {
-            var tt = t * t;
-            var ttt = tt * t;
+			// If the line doesn't point anywhere, return origin
+			if (denom == 0.0f)
+			{
+				return origin;
+			}
 
-            var e = a - b;
-            var f = d - c;
-            var g = f - e;
-            var h = e - g;
-            var i = c - a;
+			var dist01 = Vector3.Dot(position - origin, direction) / denom;
 
-            return g * ttt + h * tt + i * t + b;
-        }
+			return origin + direction * Mathf.Clamp01(dist01);
+		}
+
+		private Vector3 GetClosestPoint(Ray ray, Vector3 origin, Vector3 direction)
+		{
+			var crossA = Vector3.Cross(ray.direction, direction);
+			var denom  = Vector3.Dot(crossA, crossA);
+
+			// If lines are parallel, we can return any point on line
+			if (denom == 0.0f)
+			{
+				return origin;
+			}
+
+			var crossB = Vector3.Cross(ray.direction, ray.origin - origin);
+			var dist01 = Vector3.Dot(crossA, crossB) / denom;
+
+			return origin + direction * Mathf.Clamp01(dist01);
+		}
+
+		private float GetClosestDistance(Ray ray, Vector3 point)
+		{
+			var denom = Vector3.Dot(ray.direction, ray.direction);
+
+			// If the ray doesn't point anywhere, return distance from origin to point
+			if (denom == 0.0f)
+			{
+				return Vector3.Distance(ray.origin, point);
+			}
+
+			var dist01 = Vector3.Dot(point - ray.origin, ray.direction) / denom;
+
+			return Vector3.Distance(point, ray.GetPoint(dist01));
+		}
+
+		private int Mod(int a, int b)
+		{
+			a %= b; return a < 0 ? a + b : a;
+		}
+
+		private float CubicInterpolate(float a, float b, float c, float d, float t)
+		{
+			var tt  = t * t;
+			var ttt = tt * t;
+
+			var e = a - b;
+			var f = d - c;
+			var g = f - e;
+			var h = e - g;
+			var i = c - a;
+
+			return g * ttt + h * tt + i * t + b;
+		}
+
+		public void UpdateVisual()
+		{
+			if (Visual != null)
+			{
+				var count = GetPointCount();
+
+				Visual.positionCount = count;
+
+				for (var i = 0; i < count; i++)
+				{
+					Visual.SetPosition(i, GetPoint(i));
+				}
+			}
+		}
+
+		protected virtual void Update()
+		{
+			UpdateVisual();
+		}
+
 #if UNITY_EDITOR
-        protected virtual void OnDrawGizmosSelected()
-        {
-            var count = PointCount;
+		protected virtual void OnDrawGizmosSelected()
+		{
+			var count = GetPointCount();
 
-            if (count >= 2)
-            {
-                var pointA = GetPoint(0);
+			if (count >= 2)
+			{
+				var pointA = GetPoint(0);
 
-                for (var i = 1; i < count; i++)
-                {
-                    var pointB = GetPoint(i);
+				for (var i = 1; i < count; i++)
+				{
+					var pointB = GetPoint(i);
 
-                    Gizmos.DrawLine(pointA, pointB);
+					Gizmos.DrawLine(pointA, pointB);
 
-                    pointA = pointB;
-                }
-            }
-        }
+					pointA = pointB;
+				}
+			}
+		}
 #endif
-    }
+	}
 }

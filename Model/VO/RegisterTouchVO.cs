@@ -7,6 +7,7 @@ namespace UnityPureMVC.Modules.Touch.Model.VO
     internal class RegisterTouchVO
     {
         internal GameObject gameObject;
+        internal bool includeChildren;
         internal OnTouchDelegate callback;
     }
 }

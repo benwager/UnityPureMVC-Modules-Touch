@@ -5,6 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using static UnityPureMVC.Modules.Touch.View.Components.Delegates;
+using UnityPureMVC.Core;
+using System;
+using System.Diagnostics.Eventing.Reader;
 
 namespace UnityPureMVC.Modules.Touch.View.Components
 {
@@ -16,15 +19,12 @@ namespace UnityPureMVC.Modules.Touch.View.Components
         LeanFingerTap leanFingerTap;
         LeanFingerDown leanFingerDown;
         LeanFingerUp leanFingerUp;
-        List<OnTouchDelegate> swipeDeltaCallbacks;
-
+        Dictionary<GameObject, List<OnTouchDelegate>> registeredSwipeDeltaCallbacks;
         Dictionary<LeanFingerTap, List<OnTouchDelegate>> registeredTapCallbacks;
-
 
         public void Initialize()
         {
-            swipeDeltaCallbacks = new List<OnTouchDelegate>();
-
+            registeredSwipeDeltaCallbacks = new Dictionary<GameObject, List<OnTouchDelegate>>();
             registeredTapCallbacks = new Dictionary<LeanFingerTap, List<OnTouchDelegate>>();
 
             leanTouch = gameObject.AddComponent<LeanTouch>();
@@ -37,9 +37,21 @@ namespace UnityPureMVC.Modules.Touch.View.Components
             leanFingerDown.OnFinger.AddListener(leanSelect.SelectScreenPosition);
 
             leanSelect.LayerMask &= ~(1 << LayerMask.NameToLayer("PostProcessing"));
+            leanSelect.SelectUsing = LeanSelect.SelectType.CanvasUI;
+            leanSelect.SelectUsingAlt = LeanSelect.SelectType.Raycast3D;
+
+            leanFingerDown.IgnoreStartedOverGui = false;
+            leanFingerUp.IgnoreStartedOverGui = false;
+            leanFingerTap.IgnoreStartedOverGui = false;
         }
 
-        public void RegisterTap(GameObject gameObject, OnTouchDelegate callback)
+        /// <summary>
+        /// Registers a Tap event on a specific object
+        /// </summary>
+        /// <param name="gameObject"></param>
+        /// <param name="includeChildren"></param>
+        /// <param name="callback"></param>
+        public void RegisterTap(GameObject gameObject, bool includeChildren, OnTouchDelegate callback)
         {
             if (gameObject == null)
             {
@@ -48,27 +60,34 @@ namespace UnityPureMVC.Modules.Touch.View.Components
                 return;
             }
 
-            Collider collider = gameObject.GetComponentInChildren<Collider>();
-
-            if (collider == null)
+            GameObject target = gameObject;
+            if(gameObject.transform is RectTransform)
             {
-                DebugLogger.LogWarning("Touch : Could not register tap. No Collider found on {0}", gameObject.name);
-                return;
+
+            }
+            else
+            {
+                Collider collider = gameObject.GetComponentInChildren<Collider>();
+
+                if (collider == null)
+                {
+                    DebugLogger.LogWarning("Touch : Could not register tap. No Collider found on {0}", gameObject.name);
+                    return;
+                }
+                target = collider.gameObject;
             }
 
 
-            LeanFingerTap tap = collider.gameObject.GetComponent<LeanFingerTap>();
+            LeanFingerTap tap = target.GetComponent<LeanFingerTap>();
 
             if(tap == null)
             {
-                tap = collider.gameObject.AddComponent<LeanFingerTap>();
+                tap = target.AddComponent<LeanFingerTap>();
             }
-            
-            LeanSelectable selectable = tap.gameObject.GetComponent<LeanSelectable>();
-            if(selectable == null)
-            {
-                selectable = tap.gameObject.AddComponent<LeanSelectable>();
-            }
+
+            tap.IgnoreStartedOverGui = false;
+
+            LeanSelectable selectable = AddSelectableComponent(target);
 
             // Check if it exists in the dictionary
             if(registeredTapCallbacks.ContainsKey(tap))
@@ -91,11 +110,30 @@ namespace UnityPureMVC.Modules.Touch.View.Components
             tap.OnFinger.AddListener(OnTap);
         }
 
-        private void RegisterTap(OnTouchDelegate callback)
+        private LeanSelectable AddSelectableComponent(GameObject gameObject)
         {
-            RegisterTap(gameObject, callback);
+            LeanSelectable selectable = gameObject.GetComponent<LeanSelectable>();
+            if (selectable == null)
+            {
+                selectable = gameObject.AddComponent<LeanSelectable>();
+            }
+            return selectable;
         }
 
+        /// <summary>
+        /// Registers a global Tap event
+        /// </summary>
+        /// <param name="callback"></param>
+        private void RegisterTap(OnTouchDelegate callback)
+        {
+            RegisterTap(gameObject, false, callback);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="gameObject"></param>
+        /// <param name="callback"></param>
         public void UnRegisterTap(GameObject gameObject, OnTouchDelegate callback)
         {
             LeanFingerTap tap = gameObject.GetComponent<LeanFingerTap>();
@@ -110,22 +148,66 @@ namespace UnityPureMVC.Modules.Touch.View.Components
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="callback"></param>
+        public void UnRegisterTap(OnTouchDelegate callback)
+        {
+            UnRegisterTap(gameObject, callback);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="leanFinger"></param>
         private void OnTap(LeanFinger leanFinger)
         {
             GameObject go = leanFinger.gameObject;
             LeanFingerTap tap = go.GetComponent<LeanFingerTap>();
+
+            Vector2 normalisedScreenPosition = new Vector2(
+                leanFinger.ScreenPosition.x / Screen.width,
+                leanFinger.ScreenPosition.y / Screen.height
+                );
+
+
+            Vector2 objectPosition = new Vector2();
+            Vector2 normalisedObjectPosition = new Vector2();
+            RectTransform rt = go.transform as RectTransform;
+            if (rt != null)
+            {
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                    rt,
+                    leanFinger.ScreenPosition,
+                    Camera.main,
+                    out objectPosition
+                    );
+                normalisedObjectPosition.x = objectPosition.x / rt.sizeDelta.x;
+                normalisedObjectPosition.y = objectPosition.y / rt.sizeDelta.y;
+            }
+
             if (tap == null) return;
             if(registeredTapCallbacks.ContainsKey(tap))
             {
                 registeredTapCallbacks[tap].ForEach(i => i.Invoke(new TouchCallbackVO
                 {
                     gameObject = go,
-                    screenPosition = leanFinger.ScreenPosition
+                    screenPosition = leanFinger.ScreenPosition,
+                    normalisedScreenPosition = normalisedScreenPosition,
+                    objectPosition = objectPosition,
+                    normalisedObjectPosition = normalisedObjectPosition
                 }));
             }
         }
 
-        public void RegisterTouchDown(GameObject gameObject, OnTouchDelegate callback)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="gameObject"></param>
+        /// <param name="includeChildren"></param>
+        /// <param name="callback"></param>
+        public void RegisterTouchDown(GameObject gameObject, bool includeChildren, OnTouchDelegate callback)
         {
             if (gameObject == null)
             {
@@ -142,7 +224,7 @@ namespace UnityPureMVC.Modules.Touch.View.Components
             }
 
             LeanFingerDown down = collider.gameObject.AddComponent<LeanFingerDown>();
-            LeanSelectable selectable = down.gameObject.AddComponent<LeanSelectable>();
+            LeanSelectable selectable = AddSelectableComponent(gameObject);
             selectable.DeselectOnUp = true;
             down.RequiredSelectable = selectable;
             down.OnFinger.AddListener((LeanFinger leanFinger) =>
@@ -154,6 +236,10 @@ namespace UnityPureMVC.Modules.Touch.View.Components
             });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="callback"></param>
         private void RegisterTouchDown(OnTouchDelegate callback)
         {
             leanFingerDown.OnFinger.AddListener((LeanFinger leanFinger) =>
@@ -165,7 +251,13 @@ namespace UnityPureMVC.Modules.Touch.View.Components
             });
         }
 
-        public void RegisterTouchUp(GameObject gameObject, OnTouchDelegate callback)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="gameObject"></param>
+        /// <param name="includeChildren"></param>
+        /// <param name="callback"></param>
+        public void RegisterTouchUp(GameObject gameObject, bool includeChildren, OnTouchDelegate callback)
         {
             if (gameObject == null)
             {
@@ -182,7 +274,7 @@ namespace UnityPureMVC.Modules.Touch.View.Components
             }
 
             LeanFingerUp up = collider.gameObject.AddComponent<LeanFingerUp>();
-            LeanSelectable selectable = up.gameObject.AddComponent<LeanSelectable>();
+            LeanSelectable selectable = AddSelectableComponent(gameObject);
             selectable.DeselectOnUp = true;
             up.RequiredSelectable = selectable;
             up.OnFinger.AddListener((LeanFinger leanFinger) =>
@@ -194,6 +286,10 @@ namespace UnityPureMVC.Modules.Touch.View.Components
             });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="callback"></param>
         private void RegisterTouchUp(OnTouchDelegate callback)
         {
             leanFingerUp.OnFinger.AddListener((LeanFinger leanFinger) =>
@@ -205,38 +301,158 @@ namespace UnityPureMVC.Modules.Touch.View.Components
             });
         }
 
-        public void RegisterSwipeDelta(GameObject gameObject, OnTouchDelegate callback)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="gameObject"></param>
+        /// <param name="includeChildren"></param>
+        /// <param name="callback"></param>
+        public void RegisterSwipeDelta(GameObject gameObject, bool includeChildren, OnTouchDelegate callback)
         {
             if (gameObject == null)
             {
+                // Register a global swipe delta event
                 RegisterSwipeDelta(callback);
                 return;
             }
 
-            Debug.LogError("NEED TO IMPLEMENT OBJECT SPECIFIC SWIPE DELTA!");
+            LeanFingerMove move = gameObject.AddComponent<LeanFingerMove>();
+            LeanSelectable selectable = AddSelectableComponent(gameObject);
+            selectable.DeselectOnUp = true;
+            move.RequiredSelectable = selectable;
+            move.Use.IgnoreStartedOverGui = false;
+
+            selectable.OnSelect.AddListener((LeanFinger finger) =>
+            {
+                move.AddFinger(finger);
+            });
+            selectable.OnDeselect.AddListener(() =>
+            {
+                move.RemoveAllFingers();
+            });
+
+            move.OnDrag += (Vector3 delta, Vector3 position) =>
+            {
+                callback?.Invoke(new TouchCallbackVO()
+                {
+                    gameObject = gameObject,
+                    delta = delta,
+                    objectPosition = position
+                });
+            };
+
+            // Check if it exists in the dictionary
+            if (registeredSwipeDeltaCallbacks.ContainsKey(gameObject))
+            {
+                // Check if this particular callback is already registered
+                if (registeredSwipeDeltaCallbacks[gameObject].Contains(callback))
+                {
+                    return;
+                }
+            }
+            else
+            {
+                registeredSwipeDeltaCallbacks.Add(gameObject, new List<OnTouchDelegate>());
+            }
+
+            registeredSwipeDeltaCallbacks[gameObject].Add(callback);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="callback"></param>
         private void RegisterSwipeDelta(OnTouchDelegate callback)
         {
-            swipeDeltaCallbacks.Add(callback);
+            RegisterSwipeDelta(gameObject, false, callback);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="gameObject"></param>
+        /// <param name="includeChildren"></param>
+        /// <param name="callback"></param>
+        public void RegisterDraggableUI(GameObject gameObject, bool includeChildren, OnTouchDelegate callback)
+        {
+            LeanDragTranslate drag = gameObject.AddComponent<LeanDragTranslate>();
+            LeanSelectable selectable = AddSelectableComponent(gameObject);
+
+            if (includeChildren)
+            {
+                HandleIncludeChildren(gameObject, selectable);
+            }
+            selectable.OnSelect.AddListener((LeanFinger finger) =>
+            {
+                drag.AddFinger(finger);
+            });
+            selectable.OnDeselect.AddListener(() =>
+            {
+                drag.RemoveAllFingers();
+            });
+
+
+            drag.Inertia = .2f;
+            drag.Dampening = 10.0f;
+            drag.RequiredSelectable = selectable;
+            drag.Use.IgnoreStartedOverGui = false;
+            selectable.DeselectOnUp = true;
+            drag.OnDrag += (Vector3 delta) => 
+            {
+                callback?.Invoke(new TouchCallbackVO()
+                {
+                    gameObject = gameObject,
+                    delta = delta,
+                    screenPosition = gameObject.transform.position
+                });
+            };
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="gameObject"></param>
+        /// <param name="selectable"></param>
+        private void HandleIncludeChildren(GameObject gameObject, LeanSelectable selectable)
+        {
+            foreach (Transform child in gameObject.transform)
+            {
+                LeanSelectable s = AddSelectableComponent(child.gameObject);
+                s.DeselectOnUp = true;
+                s.OnSelect.AddListener((LeanFinger finger) =>
+                {
+                    selectable.Select(finger);
+                });
+                s.OnDeselect.AddListener(() =>
+                {
+                    selectable.Deselect();
+                });
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         private void Update()
         {
             if (Use.GetFingers().Count > 0)
             {
                 TouchCallbackVO touchCallbackVO = new TouchCallbackVO
                 {
-                    swipeDelta = LeanGesture.GetScreenDelta(Use.GetFingers()),
+                    delta = LeanGesture.GetScreenDelta(Use.GetFingers()),
                     screenPosition = LeanGesture.GetStartScreenCenter(Use.GetFingers())
                 };
-                swipeDeltaCallbacks.ForEach(i => i?.Invoke(touchCallbackVO));
+                registeredSwipeDeltaCallbacks[gameObject].ForEach(i => i?.Invoke(touchCallbackVO));
             }
         }
 
+        /// <summary>
+        /// Clean up
+        /// </summary>
         public void Destroy()
         {
-            swipeDeltaCallbacks.Clear();
+            registeredSwipeDeltaCallbacks.Clear();
+            registeredTapCallbacks.Clear();
 
             FindObjectsOfType<LeanFingerTap>().ToList().ForEach(i => GameObject.Destroy(i));
             FindObjectsOfType<LeanFingerDown>().ToList().ForEach(i => GameObject.Destroy(i));

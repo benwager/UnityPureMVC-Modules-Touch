@@ -194,6 +194,7 @@ MonoBehaviour:
   Search: 0
   Reselect: 3
   AutoDeselect: 0
+  MaxScreenDistance: 50
 --- !u!4 &194998634
 Transform:
   m_ObjectHideFlags: 0
@@ -282,9 +283,11 @@ MonoBehaviour:
     Filter: 0
     IgnoreStartedOverGui: 1
     RequiredFingerCount: 0
+    RequiredMouseButtons: 0
     RequiredSelectable: {fileID: 0}
   Camera: {fileID: 0}
-  Dampening: -1
+  Dampening: 5
+  Inertia: 0.276
   remainingTranslation: {x: 0, y: 0, z: 0}
 --- !u!114 &322088789
 MonoBehaviour:
@@ -394,6 +397,7 @@ MonoBehaviour:
     Filter: 0
     IgnoreStartedOverGui: 1
     RequiredFingerCount: 0
+    RequiredMouseButtons: 0
     RequiredSelectable: {fileID: 0}
   Camera: {fileID: 0}
   Relative: 0
@@ -415,9 +419,11 @@ MonoBehaviour:
     Filter: 0
     IgnoreStartedOverGui: 1
     RequiredFingerCount: 0
+    RequiredMouseButtons: 0
     RequiredSelectable: {fileID: 0}
   Camera: {fileID: 0}
   Relative: 0
+  Sensitivity: 1
   Dampening: -1
   remainingScale: {x: 0, y: 0, z: 0}
 --- !u!1 &377635715
@@ -495,9 +501,11 @@ MonoBehaviour:
     Filter: 0
     IgnoreStartedOverGui: 1
     RequiredFingerCount: 0
+    RequiredMouseButtons: 0
     RequiredSelectable: {fileID: 0}
   Camera: {fileID: 0}
-  Dampening: -1
+  Dampening: 5
+  Inertia: 0.276
   remainingTranslation: {x: 0, y: 0, z: 0}
 --- !u!114 &377635719
 MonoBehaviour:
@@ -607,6 +615,7 @@ MonoBehaviour:
     Filter: 0
     IgnoreStartedOverGui: 1
     RequiredFingerCount: 0
+    RequiredMouseButtons: 0
     RequiredSelectable: {fileID: 0}
   Camera: {fileID: 0}
   Relative: 0
@@ -628,9 +637,11 @@ MonoBehaviour:
     Filter: 0
     IgnoreStartedOverGui: 1
     RequiredFingerCount: 0
+    RequiredMouseButtons: 0
     RequiredSelectable: {fileID: 0}
   Camera: {fileID: 0}
   Relative: 0
+  Sensitivity: 1
   Dampening: -1
   remainingScale: {x: 0, y: 0, z: 0}
 --- !u!1 &404564028
@@ -708,9 +719,11 @@ MonoBehaviour:
     Filter: 0
     IgnoreStartedOverGui: 1
     RequiredFingerCount: 0
+    RequiredMouseButtons: 0
     RequiredSelectable: {fileID: 0}
   Camera: {fileID: 0}
-  Dampening: -1
+  Dampening: 5
+  Inertia: 0.276
   remainingTranslation: {x: 0, y: 0, z: 0}
 --- !u!114 &404564032
 MonoBehaviour:
@@ -820,6 +833,7 @@ MonoBehaviour:
     Filter: 0
     IgnoreStartedOverGui: 1
     RequiredFingerCount: 0
+    RequiredMouseButtons: 0
     RequiredSelectable: {fileID: 0}
   Camera: {fileID: 0}
   Relative: 0
@@ -841,9 +855,11 @@ MonoBehaviour:
     Filter: 0
     IgnoreStartedOverGui: 1
     RequiredFingerCount: 0
+    RequiredMouseButtons: 0
     RequiredSelectable: {fileID: 0}
   Camera: {fileID: 0}
   Relative: 0
+  Sensitivity: 1
   Dampening: -1
   remainingScale: {x: 0, y: 0, z: 0}
 --- !u!1 &469786209
@@ -995,9 +1011,11 @@ MonoBehaviour:
     Filter: 0
     IgnoreStartedOverGui: 1
     RequiredFingerCount: 0
+    RequiredMouseButtons: 0
     RequiredSelectable: {fileID: 0}
   Camera: {fileID: 0}
-  Dampening: -1
+  Dampening: 5
+  Inertia: 0.276
   remainingTranslation: {x: 0, y: 0, z: 0}
 --- !u!114 &505018705
 MonoBehaviour:
@@ -1107,6 +1125,7 @@ MonoBehaviour:
     Filter: 0
     IgnoreStartedOverGui: 1
     RequiredFingerCount: 0
+    RequiredMouseButtons: 0
     RequiredSelectable: {fileID: 0}
   Camera: {fileID: 0}
   Relative: 0
@@ -1128,9 +1147,11 @@ MonoBehaviour:
     Filter: 0
     IgnoreStartedOverGui: 1
     RequiredFingerCount: 0
+    RequiredMouseButtons: 0
     RequiredSelectable: {fileID: 0}
   Camera: {fileID: 0}
   Relative: 0
+  Sensitivity: 1
   Dampening: -1
   remainingScale: {x: 0, y: 0, z: 0}
 --- !u!1 &739148493
@@ -1208,9 +1229,11 @@ MonoBehaviour:
     Filter: 0
     IgnoreStartedOverGui: 1
     RequiredFingerCount: 0
+    RequiredMouseButtons: 0
     RequiredSelectable: {fileID: 0}
   Camera: {fileID: 0}
-  Dampening: -1
+  Dampening: 5
+  Inertia: 0.276
   remainingTranslation: {x: 0, y: 0, z: 0}
 --- !u!114 &739148497
 MonoBehaviour:
@@ -1320,6 +1343,7 @@ MonoBehaviour:
     Filter: 0
     IgnoreStartedOverGui: 1
     RequiredFingerCount: 0
+    RequiredMouseButtons: 0
     RequiredSelectable: {fileID: 0}
   Camera: {fileID: 0}
   Relative: 0
@@ -1341,9 +1365,11 @@ MonoBehaviour:
     Filter: 0
     IgnoreStartedOverGui: 1
     RequiredFingerCount: 0
+    RequiredMouseButtons: 0
     RequiredSelectable: {fileID: 0}
   Camera: {fileID: 0}
   Relative: 0
+  Sensitivity: 1
   Dampening: -1
   remainingScale: {x: 0, y: 0, z: 0}
 --- !u!1 &824984064
@@ -1421,9 +1447,11 @@ MonoBehaviour:
     Filter: 0
     IgnoreStartedOverGui: 1
     RequiredFingerCount: 0
+    RequiredMouseButtons: 0
     RequiredSelectable: {fileID: 0}
   Camera: {fileID: 0}
-  Dampening: -1
+  Dampening: 5
+  Inertia: 0.276
   remainingTranslation: {x: 0, y: 0, z: 0}
 --- !u!114 &824984068
 MonoBehaviour:
@@ -1533,6 +1561,7 @@ MonoBehaviour:
     Filter: 0
     IgnoreStartedOverGui: 1
     RequiredFingerCount: 0
+    RequiredMouseButtons: 0
     RequiredSelectable: {fileID: 0}
   Camera: {fileID: 0}
   Relative: 0
@@ -1554,9 +1583,11 @@ MonoBehaviour:
     Filter: 0
     IgnoreStartedOverGui: 1
     RequiredFingerCount: 0
+    RequiredMouseButtons: 0
     RequiredSelectable: {fileID: 0}
   Camera: {fileID: 0}
   Relative: 0
+  Sensitivity: 1
   Dampening: -1
   remainingScale: {x: 0, y: 0, z: 0}
 --- !u!1001 &847487594
@@ -1616,7 +1647,7 @@ Prefab:
     - target: {fileID: 114729068528628788, guid: 45a078c8c70061e438942146f4695f2e,
         type: 2}
       propertyPath: Paths.Array.size
-      value: 6
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 114729068528628788, guid: 45a078c8c70061e438942146f4695f2e,
         type: 2}
@@ -2361,9 +2392,11 @@ MonoBehaviour:
     Filter: 0
     IgnoreStartedOverGui: 1
     RequiredFingerCount: 0
+    RequiredMouseButtons: 0
     RequiredSelectable: {fileID: 0}
   Camera: {fileID: 0}
-  Dampening: -1
+  Dampening: 5
+  Inertia: 0.276
   remainingTranslation: {x: 0, y: 0, z: 0}
 --- !u!114 &1226795495
 MonoBehaviour:
@@ -2473,6 +2506,7 @@ MonoBehaviour:
     Filter: 0
     IgnoreStartedOverGui: 1
     RequiredFingerCount: 0
+    RequiredMouseButtons: 0
     RequiredSelectable: {fileID: 0}
   Camera: {fileID: 0}
   Relative: 0
@@ -2494,9 +2528,11 @@ MonoBehaviour:
     Filter: 0
     IgnoreStartedOverGui: 1
     RequiredFingerCount: 0
+    RequiredMouseButtons: 0
     RequiredSelectable: {fileID: 0}
   Camera: {fileID: 0}
   Relative: 0
+  Sensitivity: 1
   Dampening: -1
   remainingScale: {x: 0, y: 0, z: 0}
 --- !u!1 &1265786640
@@ -2574,9 +2610,11 @@ MonoBehaviour:
     Filter: 0
     IgnoreStartedOverGui: 1
     RequiredFingerCount: 0
+    RequiredMouseButtons: 0
     RequiredSelectable: {fileID: 0}
   Camera: {fileID: 0}
-  Dampening: -1
+  Dampening: 5
+  Inertia: 0.276
   remainingTranslation: {x: 0, y: 0, z: 0}
 --- !u!114 &1265786644
 MonoBehaviour:
@@ -2686,6 +2724,7 @@ MonoBehaviour:
     Filter: 0
     IgnoreStartedOverGui: 1
     RequiredFingerCount: 0
+    RequiredMouseButtons: 0
     RequiredSelectable: {fileID: 0}
   Camera: {fileID: 0}
   Relative: 0
@@ -2707,9 +2746,11 @@ MonoBehaviour:
     Filter: 0
     IgnoreStartedOverGui: 1
     RequiredFingerCount: 0
+    RequiredMouseButtons: 0
     RequiredSelectable: {fileID: 0}
   Camera: {fileID: 0}
   Relative: 0
+  Sensitivity: 1
   Dampening: -1
   remainingScale: {x: 0, y: 0, z: 0}
 --- !u!1 &1339105206
@@ -2787,9 +2828,11 @@ MonoBehaviour:
     Filter: 0
     IgnoreStartedOverGui: 1
     RequiredFingerCount: 0
+    RequiredMouseButtons: 0
     RequiredSelectable: {fileID: 0}
   Camera: {fileID: 0}
-  Dampening: -1
+  Dampening: 5
+  Inertia: 0.276
   remainingTranslation: {x: 0, y: 0, z: 0}
 --- !u!114 &1339105210
 MonoBehaviour:
@@ -2899,6 +2942,7 @@ MonoBehaviour:
     Filter: 0
     IgnoreStartedOverGui: 1
     RequiredFingerCount: 0
+    RequiredMouseButtons: 0
     RequiredSelectable: {fileID: 0}
   Camera: {fileID: 0}
   Relative: 0
@@ -2920,9 +2964,11 @@ MonoBehaviour:
     Filter: 0
     IgnoreStartedOverGui: 1
     RequiredFingerCount: 0
+    RequiredMouseButtons: 0
     RequiredSelectable: {fileID: 0}
   Camera: {fileID: 0}
   Relative: 0
+  Sensitivity: 1
   Dampening: -1
   remainingScale: {x: 0, y: 0, z: 0}
 --- !u!1001 &1343805567
@@ -3347,9 +3393,11 @@ MonoBehaviour:
     Filter: 0
     IgnoreStartedOverGui: 1
     RequiredFingerCount: 0
+    RequiredMouseButtons: 0
     RequiredSelectable: {fileID: 0}
   Camera: {fileID: 0}
-  Dampening: -1
+  Dampening: 5
+  Inertia: 0.276
   remainingTranslation: {x: 0, y: 0, z: 0}
 --- !u!114 &1618813198
 MonoBehaviour:
@@ -3366,6 +3414,7 @@ MonoBehaviour:
     Filter: 0
     IgnoreStartedOverGui: 1
     RequiredFingerCount: 0
+    RequiredMouseButtons: 0
     RequiredSelectable: {fileID: 0}
   Camera: {fileID: 0}
   Relative: 0
@@ -3387,9 +3436,11 @@ MonoBehaviour:
     Filter: 0
     IgnoreStartedOverGui: 1
     RequiredFingerCount: 0
+    RequiredMouseButtons: 0
     RequiredSelectable: {fileID: 0}
   Camera: {fileID: 0}
   Relative: 0
+  Sensitivity: 1
   Dampening: -1
   remainingScale: {x: 0, y: 0, z: 0}
 --- !u!1 &1650081524
@@ -3421,6 +3472,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TapThreshold: 0.5
   SwipeThreshold: 50
+  ReclaimThreshold: 10
   ReferenceDpi: 200
   GuiLayers:
     serializedVersion: 2
@@ -3521,9 +3573,11 @@ MonoBehaviour:
     Filter: 0
     IgnoreStartedOverGui: 1
     RequiredFingerCount: 0
+    RequiredMouseButtons: 0
     RequiredSelectable: {fileID: 0}
   Camera: {fileID: 0}
-  Dampening: -1
+  Dampening: 5
+  Inertia: 0.276
   remainingTranslation: {x: 0, y: 0, z: 0}
 --- !u!114 &1731184043
 MonoBehaviour:
@@ -3633,6 +3687,7 @@ MonoBehaviour:
     Filter: 0
     IgnoreStartedOverGui: 1
     RequiredFingerCount: 0
+    RequiredMouseButtons: 0
     RequiredSelectable: {fileID: 0}
   Camera: {fileID: 0}
   Relative: 0
@@ -3654,9 +3709,11 @@ MonoBehaviour:
     Filter: 0
     IgnoreStartedOverGui: 1
     RequiredFingerCount: 0
+    RequiredMouseButtons: 0
     RequiredSelectable: {fileID: 0}
   Camera: {fileID: 0}
   Relative: 0
+  Sensitivity: 1
   Dampening: -1
   remainingScale: {x: 0, y: 0, z: 0}
 --- !u!1 &1785649532

@@ -12,7 +12,7 @@ namespace UnityPureMVC.Modules.Touch.Controller.Commands.Requests
 
             TouchProxy touchProxy = Facade.RetrieveProxy(TouchProxy.NAME) as TouchProxy;
 
-            touchProxy.TouchEngineComponent.RegisterTap(registerTouchVO.gameObject, registerTouchVO.callback);
+            touchProxy.TouchEngineComponent.RegisterTap(registerTouchVO.gameObject, registerTouchVO.includeChildren, registerTouchVO.callback);
         }
     }
 }
