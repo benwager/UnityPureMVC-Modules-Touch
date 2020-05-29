@@ -45,6 +45,16 @@ namespace UnityPureMVC.Modules.Touch.View.Components
             leanFingerTap.IgnoreStartedOverGui = false;
         }
 
+        private LeanSelectable AddSelectableComponent(GameObject gameObject)
+        {
+            LeanSelectable selectable = gameObject.GetComponent<LeanSelectable>();
+            if (selectable == null)
+            {
+                selectable = gameObject.AddComponent<LeanSelectable>();
+            }
+            return selectable;
+        }
+
         /// <summary>
         /// Registers a Tap event on a specific object
         /// </summary>
@@ -110,15 +120,6 @@ namespace UnityPureMVC.Modules.Touch.View.Components
             tap.OnFinger.AddListener(OnTap);
         }
 
-        private LeanSelectable AddSelectableComponent(GameObject gameObject)
-        {
-            LeanSelectable selectable = gameObject.GetComponent<LeanSelectable>();
-            if (selectable == null)
-            {
-                selectable = gameObject.AddComponent<LeanSelectable>();
-            }
-            return selectable;
-        }
 
         /// <summary>
         /// Registers a global Tap event
@@ -165,10 +166,14 @@ namespace UnityPureMVC.Modules.Touch.View.Components
         {
             GameObject go = leanFinger.gameObject;
             LeanFingerTap tap = go.GetComponent<LeanFingerTap>();
+            if (tap == null) return;
 
+
+            float nsx = leanFinger.ScreenPosition.x / Screen.width;
+            float nsy = leanFinger.ScreenPosition.y / Screen.height;
             Vector2 normalisedScreenPosition = new Vector2(
-                leanFinger.ScreenPosition.x / Screen.width,
-                leanFinger.ScreenPosition.y / Screen.height
+                nsx,
+                nsy
                 );
 
 
@@ -177,18 +182,20 @@ namespace UnityPureMVC.Modules.Touch.View.Components
             RectTransform rt = go.transform as RectTransform;
             if (rt != null)
             {
-                RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                    rt,
-                    leanFinger.ScreenPosition,
-                    Camera.main,
-                    out objectPosition
-                    );
+                // Flip the y axis
+                Vector2 rtPos = rt.anchoredPosition;
+                rtPos.y = -rtPos.y;
+                Vector2 flippedScreenPos = leanFinger.ScreenPosition;
+                flippedScreenPos.y = Screen.height - leanFinger.ScreenPosition.y;
+
+                objectPosition = flippedScreenPos - rtPos;
                 normalisedObjectPosition.x = objectPosition.x / rt.sizeDelta.x;
                 normalisedObjectPosition.y = objectPosition.y / rt.sizeDelta.y;
+
             }
 
-            if (tap == null) return;
-            if(registeredTapCallbacks.ContainsKey(tap))
+
+            if (registeredTapCallbacks.ContainsKey(tap))
             {
                 registeredTapCallbacks[tap].ForEach(i => i.Invoke(new TouchCallbackVO
                 {
@@ -435,6 +442,11 @@ namespace UnityPureMVC.Modules.Touch.View.Components
         /// </summary>
         private void Update()
         {
+            if(!registeredSwipeDeltaCallbacks.ContainsKey(gameObject))
+            {
+                return;
+            }
+
             if (Use.GetFingers().Count > 0)
             {
                 TouchCallbackVO touchCallbackVO = new TouchCallbackVO
