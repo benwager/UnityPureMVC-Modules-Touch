@@ -1,13 +1,10 @@
 ﻿using Lean.Touch;
-using UnityPureMVC.Core.Libraries.UnityLib.Utilities.Logging;
-using UnityPureMVC.Modules.Touch.Model.VO;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityPureMVC.Core.Libraries.UnityLib.Utilities.Logging;
+using UnityPureMVC.Modules.Touch.Model.VO;
 using static UnityPureMVC.Modules.Touch.View.Components.Delegates;
-using UnityPureMVC.Core;
-using System;
-using System.Diagnostics.Eventing.Reader;
 
 namespace UnityPureMVC.Modules.Touch.View.Components
 {
@@ -222,15 +219,27 @@ namespace UnityPureMVC.Modules.Touch.View.Components
                 return;
             }
 
-            Collider collider = gameObject.GetComponentInChildren<Collider>();
+            GameObject target = gameObject;
 
-            if (collider == null)
+            if (gameObject.transform is RectTransform)
             {
-                DebugLogger.LogWarning("Touch : Could not register tap. No Collider found on {0}", gameObject.name);
-                return;
+
+            }
+            else
+            {
+                Collider collider = gameObject.GetComponentInChildren<Collider>();
+
+                if (collider == null)
+                {
+                    DebugLogger.LogWarning("Touch : Could not register touch down. No Collider found on {0}", gameObject.name);
+                    return;
+                }
+                target = collider.gameObject;
             }
 
-            LeanFingerDown down = collider.gameObject.AddComponent<LeanFingerDown>();
+            LeanFingerDown down = target.AddComponent<LeanFingerDown>();
+            down.IgnoreStartedOverGui = false;
+
             LeanSelectable selectable = AddSelectableComponent(gameObject);
             selectable.DeselectOnUp = true;
             down.RequiredSelectable = selectable;
