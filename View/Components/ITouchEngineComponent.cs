@@ -7,6 +7,8 @@ namespace UnityPureMVC.Modules.Touch.View.Components
     {
         void Initialize();
 
+        void SetTapThreshold(float tapThreshold);
+
         void RegisterTap(GameObject gameObject, bool includeChildren, OnTouchDelegate callback);
 
         void UnRegisterTap(GameObject gameObject, OnTouchDelegate callback);

@@ -18,6 +18,8 @@ namespace UnityPureMVC.Modules.Touch.Controller.Commands
             Facade.RegisterProxy(new TouchProxy());
 
             // Register commands
+
+            Facade.RegisterCommand(TouchNote.REQUEST_UPDATE_SETTINGS, typeof(RequestUpdateSettingsCommand));
             Facade.RegisterCommand(TouchNote.REQUEST_REGISTER_TAP, typeof(RequestRegisterTapCommand));
             Facade.RegisterCommand(TouchNote.REQUEST_UNREGISTER_TAP, typeof(RequestUnRegisterTapCommand));
             Facade.RegisterCommand(TouchNote.REQUEST_SET_TOUCH_ENGINE, typeof(RequestSetTouchEngineCommand));

@@ -53,6 +53,15 @@ namespace UnityPureMVC.Modules.Touch.View.Components
         }
 
         /// <summary>
+        /// Set the maximum number of seconds required between finger down and finger up to register a tap
+        /// </summary>
+        /// <param name="tapThreshold"></param>
+        public void SetTapThreshold(float tapThreshold) 
+        {
+            leanTouch.TapThreshold = tapThreshold;
+        }
+
+        /// <summary>
         /// Registers a Tap event on a specific object
         /// </summary>
         /// <param name="gameObject"></param>
@@ -245,9 +254,11 @@ namespace UnityPureMVC.Modules.Touch.View.Components
             down.RequiredSelectable = selectable;
             down.OnFinger.AddListener((LeanFinger leanFinger) =>
             {
+                Vector3 pos = leanFinger.ScreenPosition;
                 callback?.Invoke(new TouchCallbackVO
                 {
-                    gameObject = gameObject
+                    gameObject = gameObject,
+                    screenPosition = leanFinger.ScreenPosition
                 });
             });
         }
