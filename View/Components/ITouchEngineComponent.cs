@@ -21,6 +21,8 @@ namespace UnityPureMVC.Modules.Touch.View.Components
 
         void RegisterDraggableUI(GameObject gameObject, bool includeChildren, OnTouchDelegate callback);
 
+        void UnRegisterAll(GameObject gameObject);
+
         void Destroy();
     }
 }

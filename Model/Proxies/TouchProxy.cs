@@ -1,8 +1,8 @@
 ﻿using PureMVC.Patterns.Proxy;
+using UnityEngine;
 using UnityPureMVC.Core.Libraries.UnityLib.Utilities.Logging;
 using UnityPureMVC.Modules.Touch.Model.Enums;
 using UnityPureMVC.Modules.Touch.View.Components;
-using UnityEngine;
 
 namespace UnityPureMVC.Modules.Touch.Model.VO
 {

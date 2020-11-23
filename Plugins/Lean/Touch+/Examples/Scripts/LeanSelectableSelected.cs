@@ -8,162 +8,165 @@ using UnityEditor;
 
 namespace Lean.Touch
 {
-	/// <summary>This component fires events when the selectable has been selected for a certain amount of time.</summary>
-	[HelpURL(LeanTouch.PlusHelpUrlPrefix + "LeanSelectableSelected")]
-	[AddComponentMenu(LeanTouch.ComponentPathPrefix + "Selectable Selected")]
-	public class LeanSelectableSelected : LeanSelectableBehaviour
-	{
-		public enum ResetType
-		{
-			None,
-			OnSelect,
-			OnDeselect
-		}
+    /// <summary>This component fires events when the selectable has been selected for a certain amount of time.</summary>
+    [HelpURL(LeanTouch.PlusHelpUrlPrefix + "LeanSelectableSelected")]
+    [AddComponentMenu(LeanTouch.ComponentPathPrefix + "Selectable Selected")]
+    public class LeanSelectableSelected : LeanSelectableBehaviour
+    {
+        public enum ResetType
+        {
+            None,
+            OnSelect,
+            OnDeselect
+        }
 
-		// Event signature
-		[System.Serializable] public class SelectableEvent : UnityEvent<LeanSelectable> {}
+        // Event signature
+        [System.Serializable] public class SelectableEvent : UnityEvent<LeanSelectable> { }
 
-		[Tooltip("The finger must be held for this many seconds")]
-		public float Threshold = 1.0f;
+        [Tooltip("The finger must be held for this many seconds")]
+        public float Threshold = 1.0f;
 
-		[Tooltip("When should Seconds be reset to 0?")]
-		public ResetType Reset = ResetType.OnDeselect;
+        [Tooltip("When should Seconds be reset to 0?")]
+        public ResetType Reset = ResetType.OnDeselect;
 
-		[Tooltip("Bypass LeanSelectable.HideWithFinger?")]
-		public bool RawSelection;
+        [Tooltip("Bypass LeanSelectable.HideWithFinger?")]
+        public bool RawSelection;
 
-		[Tooltip("If the selecting finger went up, cancel timer?")]
-		public bool RequireFinger;
+        [Tooltip("If the selecting finger went up, cancel timer?")]
+        public bool RequireFinger;
 
-		/// <summary>Called on the first frame the conditions are met.</summary>
-		public SelectableEvent OnSelectableDown { get { if (onSelectableDown == null) onSelectableDown = new SelectableEvent(); return onSelectableDown; } } [FormerlySerializedAs("onDown")] [FormerlySerializedAs("OnDown")] [SerializeField] private SelectableEvent onSelectableDown;
+        /// <summary>Called on the first frame the conditions are met.</summary>
+        public SelectableEvent OnSelectableDown { get { if (onSelectableDown == null) onSelectableDown = new SelectableEvent(); return onSelectableDown; } }
+        [FormerlySerializedAs("onDown")] [FormerlySerializedAs("OnDown")] [SerializeField] private SelectableEvent onSelectableDown;
 
-		/// <summary>Called on every frame the conditions are met.</summary>
-		public SelectableEvent OnSelectableSet { get { if (onSelectableSet == null) onSelectableSet = new SelectableEvent(); return onSelectableSet; } } [FormerlySerializedAs("onSet")] [FormerlySerializedAs("onSet")] [FormerlySerializedAs("OnSet")] [SerializeField] private SelectableEvent onSelectableSet;
+        /// <summary>Called on every frame the conditions are met.</summary>
+        public SelectableEvent OnSelectableSet { get { if (onSelectableSet == null) onSelectableSet = new SelectableEvent(); return onSelectableSet; } }
+        [FormerlySerializedAs("onSet")] [FormerlySerializedAs("onSet")] [FormerlySerializedAs("OnSet")] [SerializeField] private SelectableEvent onSelectableSet;
 
-		/// <summary>Called on the last frame the conditions are met.</summary>
-		public SelectableEvent OnSelectableUp { get { if (onSelectableUp == null) onSelectableUp = new SelectableEvent(); return onSelectableUp; } } [FormerlySerializedAs("onUp")] [FormerlySerializedAs("OnUp")] [SerializeField] private SelectableEvent onSelectableUp;
+        /// <summary>Called on the last frame the conditions are met.</summary>
+        public SelectableEvent OnSelectableUp { get { if (onSelectableUp == null) onSelectableUp = new SelectableEvent(); return onSelectableUp; } }
+        [FormerlySerializedAs("onUp")] [FormerlySerializedAs("OnUp")] [SerializeField] private SelectableEvent onSelectableUp;
 
-		[HideInInspector]
-		[SerializeField]
-		private bool lastSet;
+        [HideInInspector]
+        [SerializeField]
+        private bool lastSet;
 
-		[HideInInspector]
-		[SerializeField]
-		private float seconds;
+        [HideInInspector]
+        [SerializeField]
+        private float seconds;
 
-		protected virtual void Update()
-		{
-			// See if the timer can be incremented
-			var set = false;
+        protected virtual void Update()
+        {
+            // See if the timer can be incremented
+            var set = false;
 
-			if (Selectable.GetIsSelected(RawSelection) == true)
-			{
-				if (RequireFinger == false || Selectable.SelectingFinger != null)
-				{
-					seconds += Time.deltaTime;
+            if (Selectable.GetIsSelected(RawSelection) == true)
+            {
+                if (RequireFinger == false || Selectable.SelectingFinger != null)
+                {
+                    seconds += Time.deltaTime;
 
-					if (seconds >= Threshold)
-					{
-						set = true;
-					}
-				}
-			}
+                    if (seconds >= Threshold)
+                    {
+                        set = true;
+                    }
+                }
+            }
 
-			// If this is the first frame of set, call down
-			if (set == true && lastSet == false)
-			{
-				if (onSelectableDown != null)
-				{
-					onSelectableDown.Invoke(Selectable);
-				}
-			}
+            // If this is the first frame of set, call down
+            if (set == true && lastSet == false)
+            {
+                if (onSelectableDown != null)
+                {
+                    onSelectableDown.Invoke(Selectable);
+                }
+            }
 
-			// Call set every time if set
-			if (set == true)
-			{
-				if (onSelectableSet != null)
-				{
-					onSelectableSet.Invoke(Selectable);
-				}
-			}
+            // Call set every time if set
+            if (set == true)
+            {
+                if (onSelectableSet != null)
+                {
+                    onSelectableSet.Invoke(Selectable);
+                }
+            }
 
-			// Store last value
-			lastSet = set;
-		}
+            // Store last value
+            lastSet = set;
+        }
 
-		protected override void OnSelect(LeanFinger finger)
-		{
-			if (Reset == ResetType.OnSelect)
-			{
-				seconds = 0.0f;
-			}
+        protected override void OnSelect(LeanFinger finger)
+        {
+            if (Reset == ResetType.OnSelect)
+            {
+                seconds = 0.0f;
+            }
 
-			// Reset value
-			lastSet = false;
-		}
+            // Reset value
+            lastSet = false;
+        }
 
-		protected override void OnDeselect()
-		{
-			if (Reset == ResetType.OnDeselect)
-			{
-				seconds = 0.0f;
-			}
+        protected override void OnDeselect()
+        {
+            if (Reset == ResetType.OnDeselect)
+            {
+                seconds = 0.0f;
+            }
 
-			if (lastSet == true)
-			{
-				if (onSelectableUp != null)
-				{
-					onSelectableUp.Invoke(Selectable);
-				}
-			}
-		}
-	}
+            if (lastSet == true)
+            {
+                if (onSelectableUp != null)
+                {
+                    onSelectableUp.Invoke(Selectable);
+                }
+            }
+        }
+    }
 }
 
 #if UNITY_EDITOR
 namespace Lean.Touch
 {
-	[CanEditMultipleObjects]
-	[CustomEditor(typeof(LeanSelectableSelected))]
-	public class LeanSelectableSelected_Inspector : LeanInspector<LeanSelectableSelected>
-	{
-		private bool showUnusedEvents;
+    [CanEditMultipleObjects]
+    [CustomEditor(typeof(LeanSelectableSelected))]
+    public class LeanSelectableSelected_Inspector : LeanInspector<LeanSelectableSelected>
+    {
+        private bool showUnusedEvents;
 
-		protected override void DrawInspector()
-		{
-			Draw("Threshold");
-			Draw("Reset");
-			Draw("RawSelection");
-			Draw("RequireFinger");
+        protected override void DrawInspector()
+        {
+            Draw("Threshold");
+            Draw("Reset");
+            Draw("RawSelection");
+            Draw("RequireFinger");
 
-			EditorGUILayout.Separator();
+            EditorGUILayout.Separator();
 
-			var usedA = Any(t => t.OnSelectableDown.GetPersistentEventCount() > 0);
-			var usedB = Any(t => t.OnSelectableSet.GetPersistentEventCount() > 0);
-			var usedC = Any(t => t.OnSelectableUp.GetPersistentEventCount() > 0);
+            var usedA = Any(t => t.OnSelectableDown.GetPersistentEventCount() > 0);
+            var usedB = Any(t => t.OnSelectableSet.GetPersistentEventCount() > 0);
+            var usedC = Any(t => t.OnSelectableUp.GetPersistentEventCount() > 0);
 
-			EditorGUI.BeginDisabledGroup(usedA && usedB && usedC);
-				showUnusedEvents = EditorGUILayout.Foldout(showUnusedEvents, "Show Unused Events");
-			EditorGUI.EndDisabledGroup();
+            EditorGUI.BeginDisabledGroup(usedA && usedB && usedC);
+            showUnusedEvents = EditorGUILayout.Foldout(showUnusedEvents, "Show Unused Events");
+            EditorGUI.EndDisabledGroup();
 
-			EditorGUILayout.Separator();
+            EditorGUILayout.Separator();
 
-			if (usedA == true || showUnusedEvents == true)
-			{
-				Draw("onSelectableDown");
-			}
+            if (usedA == true || showUnusedEvents == true)
+            {
+                Draw("onSelectableDown");
+            }
 
-			if (usedB == true || showUnusedEvents == true)
-			{
-				Draw("onSelectableSet");
-			}
+            if (usedB == true || showUnusedEvents == true)
+            {
+                Draw("onSelectableSet");
+            }
 
-			if (usedC == true || showUnusedEvents == true)
-			{
-				Draw("onSelectableUp");
-			}
-		}
-	}
+            if (usedC == true || showUnusedEvents == true)
+            {
+                Draw("onSelectableUp");
+            }
+        }
+    }
 }
 #endif

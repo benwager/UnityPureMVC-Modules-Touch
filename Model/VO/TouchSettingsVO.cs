@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace UnityPureMVC.Modules.Touch.Model.VO
+﻿namespace UnityPureMVC.Modules.Touch.Model.VO
 {
     [System.Serializable]
     public class TouchSettingsVO

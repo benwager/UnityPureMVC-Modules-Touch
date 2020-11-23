@@ -8,7 +8,7 @@
         /// Pass a TouchEngine enum item as the notification body
         /// </summary>
         internal const string REQUEST_SET_TOUCH_ENGINE = "Touch/requestSetTouchEngine";
-        
+
         /// <summary>
         /// Pass a TouchSettingsVO as the notification body
         /// </summary>
@@ -43,5 +43,10 @@
         /// Pass a RegisterTouchVO object as the notification body
         /// </summary>
         internal const string REQUEST_REGISTER_DRAGGABLE_UI = "Touch/requestRegisterDraggableUI";
+
+        /// <summary>
+        /// Pass a gameobject as notification body
+        /// </summary>
+        internal const string REQUEST_UNREGISTER_ALL = "Touch/requestUnregisterAll";
     }
 }

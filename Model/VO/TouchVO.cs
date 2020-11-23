@@ -1,6 +1,6 @@
-﻿using UnityPureMVC.Modules.Touch.Model.Enums;
+﻿using UnityEngine;
+using UnityPureMVC.Modules.Touch.Model.Enums;
 using UnityPureMVC.Modules.Touch.View.Components;
-using UnityEngine;
 
 namespace UnityPureMVC.Modules.Touch.Model.VO
 {

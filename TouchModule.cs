@@ -2,10 +2,10 @@
 {
     using PureMVC.Interfaces;
     using PureMVC.Patterns.Facade;
-    using UnityPureMVC.Modules.Touch.Controller.Commands;
-    using UnityPureMVC.Modules.Touch.Controller.Notes;
     using System;
     using UnityEngine;
+    using UnityPureMVC.Modules.Touch.Controller.Commands;
+    using UnityPureMVC.Modules.Touch.Controller.Notes;
 
     internal class TouchModule : MonoBehaviour
     {

@@ -2,72 +2,72 @@ using UnityEngine;
 
 namespace Lean.Touch
 {
-	/// <summary>This script moves the ball left or right and resets it if it goes out of bounds.</summary>
-	[RequireComponent(typeof(Rigidbody))]
-	[HelpURL(LeanTouch.PlusHelpUrlPrefix + "LeanPongBall")]
-	[AddComponentMenu(LeanTouch.ComponentPathPrefix + "Pong Ball")]
-	public class LeanPongBall : MonoBehaviour
-	{
-		[Tooltip("Starting horizontal speed of the ball")]
-		public float StartSpeed = 1.0f;
+    /// <summary>This script moves the ball left or right and resets it if it goes out of bounds.</summary>
+    [RequireComponent(typeof(Rigidbody))]
+    [HelpURL(LeanTouch.PlusHelpUrlPrefix + "LeanPongBall")]
+    [AddComponentMenu(LeanTouch.ComponentPathPrefix + "Pong Ball")]
+    public class LeanPongBall : MonoBehaviour
+    {
+        [Tooltip("Starting horizontal speed of the ball")]
+        public float StartSpeed = 1.0f;
 
-		[Tooltip("Starting vertical speed of the ball")]
-		public float Spread = 1.0f;
+        [Tooltip("Starting vertical speed of the ball")]
+        public float Spread = 1.0f;
 
-		[Tooltip("The acceleration per second")]
-		public float Acceleration = 0.1f;
-		
-		[Tooltip("If the ball goes this many units from the center, it will reset")]
-		public float Bounds = 10.0f;
+        [Tooltip("The acceleration per second")]
+        public float Acceleration = 0.1f;
 
-		// The current rigidbody
-		private Rigidbody body;
+        [Tooltip("If the ball goes this many units from the center, it will reset")]
+        public float Bounds = 10.0f;
 
-		// The current speed of the ball
-		private float speed;
-		
-		protected virtual void Awake()
-		{
-			// Store the rigidbody component attached to this GameObject
-			body = GetComponent<Rigidbody>();
+        // The current rigidbody
+        private Rigidbody body;
 
-			// Reset the ball
-			ResetPositionAndVelocity();
-		}
+        // The current speed of the ball
+        private float speed;
 
-		protected virtual void FixedUpdate()
-		{
-			// Is the position out of bounds?
-			if (transform.localPosition.magnitude > Bounds)
-			{
-				ResetPositionAndVelocity();
-			}
+        protected virtual void Awake()
+        {
+            // Store the rigidbody component attached to this GameObject
+            body = GetComponent<Rigidbody>();
 
-			// Increase speed value
-			speed += Acceleration * Time.deltaTime;
+            // Reset the ball
+            ResetPositionAndVelocity();
+        }
 
-			// Reset velocity magnitude to new speed
-			body.velocity = body.velocity.normalized * speed;
-		}
+        protected virtual void FixedUpdate()
+        {
+            // Is the position out of bounds?
+            if (transform.localPosition.magnitude > Bounds)
+            {
+                ResetPositionAndVelocity();
+            }
 
-		private void ResetPositionAndVelocity()
-		{
-			// Reset position
-			transform.localPosition = Vector3.zero;
-			
-			// Reset speed value
-			speed = StartSpeed;
+            // Increase speed value
+            speed += Acceleration * Time.deltaTime;
 
-			// If moving right, reset velocity to the left
-			if (body.velocity.x > 0.0f)
-			{
-				body.velocity = new Vector3(-speed, Random.Range(-Spread, Spread), 0.0f);
-			}
-			// If moving left, reset velocity to the right
-			else
-			{
-				body.velocity = new Vector3(speed, Random.Range(-Spread, Spread), 0.0f);
-			}
-		}
-	}
+            // Reset velocity magnitude to new speed
+            body.velocity = body.velocity.normalized * speed;
+        }
+
+        private void ResetPositionAndVelocity()
+        {
+            // Reset position
+            transform.localPosition = Vector3.zero;
+
+            // Reset speed value
+            speed = StartSpeed;
+
+            // If moving right, reset velocity to the left
+            if (body.velocity.x > 0.0f)
+            {
+                body.velocity = new Vector3(-speed, Random.Range(-Spread, Spread), 0.0f);
+            }
+            // If moving left, reset velocity to the right
+            else
+            {
+                body.velocity = new Vector3(speed, Random.Range(-Spread, Spread), 0.0f);
+            }
+        }
+    }
 }

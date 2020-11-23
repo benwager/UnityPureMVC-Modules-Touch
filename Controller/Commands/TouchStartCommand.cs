@@ -27,6 +27,7 @@ namespace UnityPureMVC.Modules.Touch.Controller.Commands
             Facade.RegisterCommand(TouchNote.REQUEST_REGISTER_TOUCH_DOWN, typeof(RequestRegisterTouchDownCommand));
             Facade.RegisterCommand(TouchNote.REQUEST_REGISTER_TOUCH_UP, typeof(RequestRegisterTouchUpCommand));
             Facade.RegisterCommand(TouchNote.REQUEST_REGISTER_DRAGGABLE_UI, typeof(RequestRegisterDraggableUICommand));
+            Facade.RegisterCommand(TouchNote.REQUEST_UNREGISTER_ALL, typeof(RequestUnRegisterAllCommand));
 
             SendNotification(TouchNote.REQUEST_SET_TOUCH_ENGINE, TouchEngine.LeanTouch, null, "Touch");
 

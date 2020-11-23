@@ -56,7 +56,7 @@ namespace UnityPureMVC.Modules.Touch.View.Components
         /// Set the maximum number of seconds required between finger down and finger up to register a tap
         /// </summary>
         /// <param name="tapThreshold"></param>
-        public void SetTapThreshold(float tapThreshold) 
+        public void SetTapThreshold(float tapThreshold)
         {
             leanTouch.TapThreshold = tapThreshold;
         }
@@ -77,7 +77,7 @@ namespace UnityPureMVC.Modules.Touch.View.Components
             }
 
             GameObject target = gameObject;
-            if(gameObject.transform is RectTransform)
+            if (gameObject.transform is RectTransform)
             {
 
             }
@@ -96,7 +96,7 @@ namespace UnityPureMVC.Modules.Touch.View.Components
 
             LeanFingerTap tap = target.GetComponent<LeanFingerTap>();
 
-            if(tap == null)
+            if (tap == null)
             {
                 tap = target.AddComponent<LeanFingerTap>();
             }
@@ -106,10 +106,10 @@ namespace UnityPureMVC.Modules.Touch.View.Components
             LeanSelectable selectable = AddSelectableComponent(target);
 
             // Check if it exists in the dictionary
-            if(registeredTapCallbacks.ContainsKey(tap))
+            if (registeredTapCallbacks.ContainsKey(tap))
             {
                 // Check if this particular callback is already registered
-                if(registeredTapCallbacks[tap].Contains(callback))
+                if (registeredTapCallbacks[tap].Contains(callback))
                 {
                     return;
                 }
@@ -146,9 +146,9 @@ namespace UnityPureMVC.Modules.Touch.View.Components
             LeanFingerTap tap = gameObject.GetComponent<LeanFingerTap>();
             if (tap == null) return;
 
-            if(registeredTapCallbacks.ContainsKey(tap))
+            if (registeredTapCallbacks.ContainsKey(tap))
             {
-                if(registeredTapCallbacks[tap].Contains(callback))
+                if (registeredTapCallbacks[tap].Contains(callback))
                 {
                     registeredTapCallbacks[tap].Remove(callback);
                 }
@@ -424,7 +424,7 @@ namespace UnityPureMVC.Modules.Touch.View.Components
             drag.RequiredSelectable = selectable;
             drag.Use.IgnoreStartedOverGui = false;
             selectable.DeselectOnUp = true;
-            drag.OnDrag += (Vector3 delta) => 
+            drag.OnDrag += (Vector3 delta) =>
             {
                 callback?.Invoke(new TouchCallbackVO()
                 {
@@ -434,6 +434,49 @@ namespace UnityPureMVC.Modules.Touch.View.Components
                 });
             };
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="gameObject"></param>
+        public void UnRegisterAll(GameObject gameObject)
+        {
+            LeanFingerTap tap = gameObject.GetComponent<LeanFingerTap>();
+            LeanFingerDown down = gameObject.GetComponent<LeanFingerDown>();
+            LeanFingerUp up = gameObject.GetComponent<LeanFingerUp>();
+            LeanDragTranslate drag = gameObject.GetComponent<LeanDragTranslate>();
+
+            if (drag != null)
+            {
+                GameObject.Destroy(drag);
+            }
+            if (down != null)
+            {
+                down.OnFinger.RemoveAllListeners();
+                down.OnPosition.RemoveAllListeners();
+            }
+            if (up != null)
+            {
+                up.OnFinger.RemoveAllListeners();
+                up.OnPosition.RemoveAllListeners();
+            }
+            if (tap != null)
+            {
+                tap.OnFinger.RemoveAllListeners();
+                tap.OnPosition.RemoveAllListeners();
+
+                if (registeredTapCallbacks.ContainsKey(tap))
+                {
+                    registeredTapCallbacks.Remove(tap);
+                }
+            }
+
+            if (registeredSwipeDeltaCallbacks.ContainsKey(gameObject))
+            {
+                registeredSwipeDeltaCallbacks.Remove(gameObject);
+            }
+        }
+
 
         /// <summary>
         /// 
@@ -462,7 +505,7 @@ namespace UnityPureMVC.Modules.Touch.View.Components
         /// </summary>
         private void Update()
         {
-            if(!registeredSwipeDeltaCallbacks.ContainsKey(gameObject))
+            if (!registeredSwipeDeltaCallbacks.ContainsKey(gameObject))
             {
                 return;
             }
